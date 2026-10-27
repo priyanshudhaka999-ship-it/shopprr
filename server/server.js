@@ -17,7 +17,7 @@ await connectDB() // establish connection with the database
 await connectCloudinary() //setup cloudinary for image storage
 
 // Allow multiple origins
-const allowedOrigins = ['http://localhost:5173']
+const allowedOrigins = ['http://localhost:5173','https://shopprr-ta4g.vercel.app']
 
 // Middleware Setup
 app.use(express.json()) // Enables JSON request body parsing
