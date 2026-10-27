@@ -87,7 +87,7 @@ const ProductDetails = () => {
               </h3>
 
               <h4 className='h4'>
-                {currency}{product.price}.00
+                {currency}{product.offerPrice}.00
               </h4>
             </div>
 
