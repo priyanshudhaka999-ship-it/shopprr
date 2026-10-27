@@ -21,6 +21,7 @@
     "jsonwebtoken": "^9.0.3",
     "mongoose": "^9.11.2",
     "multer": "^2.4.0",
+    "razorpay": "^2.9.8",
     "stripe": "^23.0.0",
     "validator": "^13.15.35"
   },

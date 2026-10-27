@@ -1,9 +1,24 @@
 import React, { useContext } from 'react'
 import { ShopContext } from '../../context/ShopContext'
+import toast from 'react-hot-toast'
 
 const ProductList = () => {
 
-  const { products, currency, fetchProducts } = useContext(ShopContext)
+  const { products, currency, fetchProducts,axios } = useContext(ShopContext)
+
+  const toggleStock = async(productId,inStock)=>{
+    try {
+      const {data} = await axios.post('/api/product/stock', {productId,inStock})
+      if(data.success){
+        fetchProducts()
+        toast.success("Stock updated")
+      }else{
+        toast.error(data.message)
+      }
+    } catch (error) {
+      toast.error(error.message)
+    }
+  }
 
   return (
     <div className='px-2 sm:px-6 py-12 m-2 h-[97vh] bg-primary overflow-y-scroll lg:w-4/5 rounded-xl'>
@@ -25,7 +40,9 @@ const ProductList = () => {
             <div className='text-sm font-semibold'>{currency}{product.offerPrice}</div>
             <div>
               <label className='relative inline-flex items-center cursor-pointer text-gray-900 gap-3'>
-                <input type="checkbox" className='sr-only peer' defaultChecked={product.inStock} />
+                <input
+                onClick={()=> toggleStock(product._id, !product.inStock)}
+                type="checkbox" className='sr-only peer' defaultChecked={product.inStock} />
                 <div className='w-10 h-6 bg-slate-300 rounded-full peer peer-checked:bg-secondary transition-colors duration-200'></div>
                 <span className='absolute left-1 top-1 w-4 h-4 bg-white rounded-full transition-transform duration-200 ease-in-out peer-checked:translate-x-4'></span>
               </label>

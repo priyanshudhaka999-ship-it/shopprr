@@ -23,19 +23,17 @@ const CartTotal = ({ method, setMethod }) => {
                         <div className="flex gap-3">
                             <div
                                 onClick={() => setMethod('COD')}
-                                className={`${
-                                    method === "COD" ? "btn-secondary" : "btn-light"
-                                } py-1 text-xs cursor-pointer`}
+                                className={`${method === "COD" ? "btn-secondary" : "btn-light"
+                                    } py-1 text-xs cursor-pointer`}
                             >
                                 Cash on Delivery
                             </div>
                             <div
-                                onClick={() => setMethod('stripe')}
-                                className={`${
-                                    method === "stripe" ? "btn-secondary" : "btn-light"
-                                } py-1 text-xs cursor-pointer`}
+                                onClick={() => setMethod("Razorpay")}
+                                className={`${method === "Razorpay" ? "btn-secondary" : "btn-light"
+                                    } py-1 text-xs cursor-pointer`}
                             >
-                                Stripe
+                                Razorpay
                             </div>
                         </div>
                     </div>
@@ -73,8 +71,8 @@ const CartTotal = ({ method, setMethod }) => {
                         {getCartAmount() === 0
                             ? "0.00"
                             : getCartAmount() +
-                              delivery_charges +
-                              (getCartAmount() * 2) / 100}
+                            delivery_charges +
+                            (getCartAmount() * 2) / 100}
                     </p>
                 </div>
             </div>

@@ -1,20 +1,32 @@
 import React, { useContext, useEffect, useState } from 'react'
 import { ShopContext } from '../context/ShopContext'
 import Title from '../components/Title'
-import { dummyOrders } from '../assets/data'
+import toast from 'react-hot-toast'
 
 const MyOrders = () => {
 
-  const { currency, user } = useContext(ShopContext)
+  const { currency, user, axios } = useContext(ShopContext)
   const [orders, setOrders] = useState([])
 
+
+
   const loadOrderData = async () => {
-    setOrders(dummyOrders)
-  }
+    if (!user) return;
+    try {
+      const { data } = await axios.post("/api/order/userorders");
+      if (data.success) {
+        setOrders(data.orders);
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  };
 
   useEffect(() => {
-    loadOrderData()
-  }, [])
+    if (user) {
+      loadOrderData();
+    }
+  }, [user]);
 
   return (
     <div className='max-padd-container py-16 pt-28 bg-primary'>
@@ -64,7 +76,7 @@ const MyOrders = () => {
                 <div className='flex items-center gap-x-2'>
                   <h5 className='medium-14'>Payment Status:</h5>
                   <p className='text-gray-400 text-sm'>{order.isPaid ? "Done" : "Pending"}</p>
-                
+                </div>
                 <div className='flex items-center gap-x-2'>
                   <h5 className='medium-14'>Method:</h5>
                   <p className='text-gray-400 text-sm'>{order.paymentMethod}</p>
@@ -91,8 +103,12 @@ const MyOrders = () => {
                 <p>{order.status}</p>
               </div>
             </div>
-            <button onClick={() => { }} className='btn-secondary !py-1 !text-xs rounded-sm'>Track Order</button>
-          </div>
+            <button
+              onClick={async () => {
+                await loadOrderData();
+                toast.success(`order  tracked`)
+              }}
+              className='btn-secondary !py-1 !text-xs rounded-sm'>Track Order</button>
           </div>
         </div>
       ))}

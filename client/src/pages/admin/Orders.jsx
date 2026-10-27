@@ -1,19 +1,46 @@
 import React, { useContext, useEffect, useState } from 'react'
 import { ShopContext } from '../../context/ShopContext'
-import { dummyOrders } from '../../assets/data'
+import toast from 'react-hot-toast'
 
 const Orders = () => {
 
-  const { currency } = useContext(ShopContext)
+  const { currency, axios } = useContext(ShopContext)
   const [orders, setOrders] = useState([])
 
-  const fetchAllOrders = async () => {
-    setOrders(dummyOrders)
-  }
+  
+    const fetchAllOrders = async () => {
+      try {
+        const { data } = await axios.post('/api/order/list')
+        if (data.success) {
+          setOrders(data.orders)
+        } else {
+          toast.error(data.message)
+        }
+      } catch (error) {
+        toast.error(error.message)
+      }
+    }
 
-  useEffect(() => {
+const statusHandler = async(event,orderId)=>{
+  try {
+    const{data} = await axios.post('/api/order/status', {orderId, status :event.target.value })
+    if(data.success){
+      await fetchAllOrders()
+      toast.success(data.message)
+    }else{
+      toast.error(data.message)
+    }
+  } catch (error) {
+    console.log(error)
+    toast.error(error.message)
+  }
+}
+
+  useEffect(()=>{
     fetchAllOrders()
-  }, [])
+  },[])
+
+
 
   return (
     <div className='px-2 sm:px-6 py-12 m-2 h-[97vh] bg-primary overflow-y-scroll lg:w-4/5 rounded-xl'>
@@ -98,7 +125,9 @@ const Orders = () => {
 
             <div className='flex items-center gap-2'>
               <h5 className='medium-14'>Status:</h5>
-              <select value={order.status} className="text-xs font-semibold p-1 ring-1 ring-slate-900/5 rounded max-w-36 bg-primary">
+              <select
+              onChange={(event)=> statusHandler(event,order._id)}
+              value={order.status} className="text-xs font-semibold p-1 ring-1 ring-slate-900/5 rounded max-w-36 bg-primary">
                 <option value="Order Placed">Order Placed</option>
                 <option value="Packing">Packing</option>
                 <option value="Shipped">Shipped</option>

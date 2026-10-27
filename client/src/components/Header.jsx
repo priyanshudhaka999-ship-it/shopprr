@@ -8,7 +8,7 @@ import userImg from "../assets/user.png";
 import {  ShopContext} from "../context/ShopContext";
 
 const Header = () => {
-  const { user, setUser, navigate,searchQuery,setsearchQuery,setShowUserLogin,getCartCount } = useContext(ShopContext);
+  const { user, setUser, navigate,searchQuery,setsearchQuery,setShowUserLogin,getCartCount,userLogut } = useContext(ShopContext);
   const [menuOpened, setMenuOpened] = useState(false);
   const [showSearch, setShowSearch] = useState(false);
 
@@ -126,7 +126,9 @@ const Header = () => {
                 >
                   Orders
                 </li>
-                <li className="p-2 text-tertiary rounded-md hover:bg-primary cursor-pointer">
+                <li
+                onClick={()=> userLogut()}
+                className="p-2 text-tertiary rounded-md hover:bg-primary cursor-pointer">
                   Logout
                 </li>
               </ul>

@@ -2,7 +2,10 @@ import React, { createContext, useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { dummyProducts } from '../assets/data'
 import toast from 'react-hot-toast'
+import axios from 'axios'
 
+axios.defaults.withCredentials = true
+axios.defaults.baseURL = import.meta.env.VITE_BACKEND_URL
 
 export const ShopContext = createContext()
 
@@ -18,8 +21,68 @@ const ShopContextProvider = ({ children }) => {
     const [cartItems, setCartItems] = useState({})
     const [isAdmin, setIsAdmin] = useState(false)
 
-    const fetchProducts = () => {
-        setproducts(dummyProducts)
+
+    const fetchProducts = async () => {
+        try {
+            const { data } = await axios.get('/api/product/list')
+            if (data.success) {
+                setproducts(data.products)
+            } else {
+                toast.error(data.message)
+            }
+        } catch (error) {
+            toast.error(error.message)
+        }
+    }
+
+    // Fetch User
+    const fetchUser = async () => {
+        try {
+            const { data } = await axios.get('/api/user/is-auth')
+            if (data.success) {
+                setUser(data.user)
+                setCartItems(data.user.cartData)
+            } else {
+                setUser(null)
+                setCartItems({})
+            }
+        } catch (error) {
+            setUser(null)
+            setCartItems({})
+        }
+    }
+
+    // handle user login success
+    const handleLoginSuccess = async () => {
+        await fetchUser()
+        navigate('/')
+    }
+
+    // user logout 
+    const userLogut = async () => {
+        try {
+            const { data } = await axios.post('/api/user/logout')
+            if (data.success) {
+                toast.success(data.message)
+                setUser(null)
+                setCartItems({})
+                navigate('/')
+            } else {
+                toast.error(data.message)
+            }
+        } catch (error) {
+            toast.error(error.message)
+        }
+    }
+
+    // fetch  admin
+    const fetchAdmin = async () => {
+        try {
+            const { data } = await axios.post("/api/admin/is-auth")
+            setIsAdmin(data.success)
+        } catch (error) {
+            setIsAdmin(false)
+        }
     }
 
     // Add Product to the Cart
@@ -42,8 +105,22 @@ const ShopContextProvider = ({ children }) => {
         // Output: { shirt123: { M: 1 } }
         // If M already had quantity 1, it becomes 2
         setCartItems(cartData);
-        toast.success("Item added to cart")
-    }
+
+        if (user) {
+            try {
+                const { data } = await axios.post("/api/cart/add", {userId: user._id, itemId, size });
+                if (data.success) {
+                    toast.success(data.message);
+                } else {
+                    toast.error(data.message);
+                }
+            } catch (error) {
+                toast.error(error.message);
+            }
+        }
+    };
+
+    
 
     // Get Cart Count
     const getCartCount = () => {
@@ -61,6 +138,23 @@ const ShopContextProvider = ({ children }) => {
         let cartData = structuredClone(cartItems)
         cartData[itemId][size] = quantity
         setCartItems(cartData)
+        if (user) {
+            try {
+                const { data } = await axios.post("/api/cart/update", {
+                    itemId,
+                    size,
+                    quantity,
+                });
+                if (data.success) {
+                    toast.success(data.message);
+                } else {
+                    toast.error(data.message);
+                }
+            } catch (error) {
+                toast.error(error.message);
+            }
+
+        };
     }
 
     // Get Cart Amount
@@ -77,8 +171,9 @@ const ShopContextProvider = ({ children }) => {
     }
 
     useEffect(() => {
-        fetchProducts()
-
+        fetchProducts(),
+            fetchAdmin(),
+            fetchUser()
     }, [])
 
     const value = {
@@ -101,6 +196,10 @@ const ShopContextProvider = ({ children }) => {
         delivery_charges,
         isAdmin,
         setIsAdmin,
+        axios,
+        handleLoginSuccess,
+        userLogut,
+        fetchUser
     }
 
     return (
